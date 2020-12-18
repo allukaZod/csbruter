@@ -23,7 +23,7 @@ parser.add_argument("wordlist", nargs="?",
                     help="Newline-delimited word list file")
 parser.add_argument("-p", dest="port", default=50050, type=int,
                     help="Teamserver port")
-parser.add_argument("-t", dest="threads", default=25, type=int,
+parser.add_argument("-t", dest="threads", default=10, type=int,
                     help="Concurrency level")
 
 args = parser.parse_args()
@@ -126,6 +126,7 @@ if len(passwords) > 0:
 
     attempts = 0
     failures = 0
+    wrongs = 0
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.threads) as executor:
 
@@ -137,6 +138,10 @@ if len(passwords) > 0:
                 attempts = attempts + 1
                 if data:
                     print("Found Password: {}".format(password))
+                    break
+                else:
+                   wrongs = wrongs + 1
+                   if wrongs % 100 == 0: print("{} tryouts finished", wrongs)    
             except Exception as exc:
                 failures = failures + 1
                 print('%r generated an exception: %s' % (password, exc))
